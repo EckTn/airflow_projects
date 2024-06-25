@@ -21,3 +21,9 @@ The pipeline reads raw EV data from a csv file, processes it to a silver level, 
 
 #### 2. Install Docker and Docker Compose
 
+#### 3. Set Up Airflow and PostgreSQL
+
+#### 4. Prepare the DAG file
+
+#### 5. Start Services & Access Airflow
+
