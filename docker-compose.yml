@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ubuntu
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    networks:
+      - airflow_network
+
+  airflow-webserver:
+    image: apache/airflow:2.9.2-python3.8
+    user: root
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://ubuntu:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ~/airflow/dags:/opt/airflow/dags
+      - ~/airflow/logs:/opt/airflow/logs
+    command: webserver
+    networks:
+      - airflow_network
+
+  airflow-scheduler:
+    image: apache/airflow:2.9.2-python3.8
+    user: root
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://ubuntu:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
+    volumes:
+      - ~/airflow/dags:/opt/airflow/dags
+      - ~/airflow/logs:/opt/airflow/logs
+    command: scheduler
+    networks:
+      - airflow_network
+
+volumes:
+  postgres-db-volume:
+
+networks:
+  airflow_network:
